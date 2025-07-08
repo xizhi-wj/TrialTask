@@ -11,7 +11,7 @@ export default function Landing() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 1.5 }}
-        className="h-screen w-screen bg-[url('/bg.png')] bg-cover bg-no-repeat"
+        className="h-screen w-screen bg-[url('/bg.jpg')] bg-cover bg-no-repeat"
       ></motion.div>
     </AnimatePresence>
   );
