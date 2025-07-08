@@ -21,7 +21,7 @@ export default function Welcome({ onComplete }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onAnimationComplete={(o) => hide(o)}
-            transition={{ duration: 1.5 }}
+            transition={{ duration: 1 }}
             src="/IMAGOTIP FINAL BLANC.svg"
             className="w-256 h-256 max-h-full max-w-full"
           ></motion.img>
