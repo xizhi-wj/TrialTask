@@ -1,5 +1,5 @@
 "use client";
-import { LEFT_NAV_MENU_LIST } from "@/app/constant";
+import { LEFT_NAV_MENU_LIST, RIGHT_NAV_MENU_LIST } from "@/app/constant";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +11,9 @@ export default function Header() {
 
   const iconOffset = 47;
 
-  const [ballPosition, setBallPosition] = useState(0);
+  const svgOffset = -480;
+
+  const [ballPosition, setBallPosition] = useState(svgOffset);
 
   const router = useRouter();
 
@@ -38,15 +40,15 @@ export default function Header() {
                 whileHover={{ scale: 1.1 }} // 悬停状态
                 transition={{
                   x: {
-                    duration: 2,
+                    duration: 1,
                     ease: "easeInOut",
                   },
                   scale: {
-                    duration: 0.3,
+                    duration: 0.1,
                     ease: "easeInOut",
                   },
                   opacity: {
-                    duration: 2,
+                    duration: 1,
                     ease: "easeInOut",
                   },
                 }}
@@ -75,7 +77,7 @@ export default function Header() {
                   >
                     <div
                       style={{
-                        padding: 20,
+                        padding: "26px 10px",
                         marginLeft: 50,
                       }}
                       className="menu-list w-full flex flex-col gap-[15px] text-[#ffffff] relative"
@@ -84,12 +86,15 @@ export default function Header() {
                         <motion.a
                           onClick={(e) => {
                             setMenuIndex(index);
-                            setBallPosition(index * iconOffset);
+                            setBallPosition(svgOffset + index * iconOffset);
                             if (item.path) {
                               router.push(item.path);
                             }
                           }}
-                          key={item.value}
+                          onHoverStart={() => {
+                            setBallPosition(svgOffset + index * iconOffset);
+                          }}
+                          key={index}
                           style={{
                             width: "fit-content",
                             verticalAlign: "middle",
@@ -105,15 +110,38 @@ export default function Header() {
                             fontSize: menuIndex === index ? "28px" : "24px",
                           }}
                           transition={{
-                            duration: 0.3,
+                            duration: 0.05,
                             ease: "easeInOut",
                           }}
                         >
                           {item.value}
                         </motion.a>
                       ))}
-                      <motion.div className="menu-icon h-full absolute top-0 left-[-12%]">
+                      <motion.div className="menu-icon h-full absolute top-0 left-[-12%] overflow-hidden">
                         <motion.svg
+                          width="33"
+                          height="980"
+                          viewBox="0 0 33 980"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          initial={{ y: ballPosition }}
+                          animate={{ y: ballPosition }}
+                          transition={{
+                            duration: 0.03,
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <path
+                            d="M10 979.5V555.794C10.0002 551.61 13.9004 545.049 20.0479 541.463L20.0488 541.462C27.2976 537.251 31.9004 529.414 31.9004 520.995C31.9003 512.574 27.3952 504.74 20.0518 500.529L20.0479 500.527C13.9002 496.941 10 490.38 10 483.295V0.499023H9V483.295C9 490.714 13.0024 497.652 19.5508 501.464C26.5037 505.453 30.9003 513.016 30.9004 520.995C30.9004 529.073 26.6048 536.542 19.5459 540.531H19.5449C13.0051 544.241 9.00016 551.273 9 558.695V979.5H10Z"
+                            fill="white"
+                            stroke="white"
+                          />
+                          <path
+                            d="M9.5 511.6C14.7467 511.6 19 515.853 19 521.1C19 526.347 14.7467 530.6 9.5 530.6C4.25329 530.6 0 526.347 0 521.1C0 515.853 4.25329 511.6 9.5 511.6Z"
+                            fill="white"
+                          />
+                        </motion.svg>
+                        {/* <motion.svg
                           width="42" // 40（椭圆直径） + 2（描边溢出）
                           viewBox="79 0 42 280" // x=79（100-21），宽度42
                           className="h-full"
@@ -125,7 +153,7 @@ export default function Header() {
                                 L100,2300`}
                             fill="none"
                             transition={{
-                              duration: 0.5,
+                              duration: 0.03,
                               ease: "easeInOut",
                             }}
                             animate={{
@@ -144,7 +172,7 @@ export default function Header() {
                             cy={ballPosition - iconOffset + 20}
                             r="8"
                             transition={{
-                              duration: 0.5,
+                              duration: 0.05,
                               ease: "easeInOut",
                             }}
                             fill="white"
@@ -152,7 +180,7 @@ export default function Header() {
                               cy: ballPosition - iconOffset + 20,
                             }}
                           ></motion.circle>
-                        </motion.svg>
+                        </motion.svg> */}
                       </motion.div>
                     </div>
                   </motion.div>
@@ -166,11 +194,11 @@ export default function Header() {
           animate={{ top: 40, opacity: 1 }}
           transition={{
             top: {
-              duration: 2,
+              duration: 1,
               ease: "easeInOut",
             },
             opacity: {
-              duration: 2,
+              duration: 1,
               ease: "easeInOut",
             },
           }}
@@ -184,10 +212,10 @@ export default function Header() {
           >
             <motion.div>
               <motion.img
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.1 }}
                 transition={{
                   scale: {
-                    duration: 0.3,
+                    duration: 0.1,
                     ease: "easeInOut",
                   },
                 }}
@@ -202,56 +230,27 @@ export default function Header() {
             initial={{ x: 80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{
-              x: {
-                duration: 2,
-                ease: "easeInOut",
-              },
-              opacity: {
-                duration: 2,
-                ease: "easeInOut",
-              },
+              duration: 1,
+              ease: "easeInOut",
             }}
             className="nav flex items-center gap-x-[20px]"
           >
-            <div className="nav-item cursor-pointer">
-              <motion.img
-                src="/COMPRA BLANC.jpg"
-                className="h-[30px] buy"
-                transition={{
-                  scale: {
-                    duration: 0.3,
-                    ease: "easeInOut",
-                  },
-                }}
-                whileHover={{ scale: 1.12 }}
-              ></motion.img>
-            </div>
-            <div className="nav-item cursor-pointer">
-              <motion.img
-                src="/USER BLANC.jpg"
-                className="h-[30px] user"
-                transition={{
-                  scale: {
-                    duration: 0.3,
-                    ease: "easeInOut",
-                  },
-                }}
-                whileHover={{ scale: 1.12 }}
-              ></motion.img>
-            </div>
-            <div className="nav-item cursor-pointer">
-              <motion.img
-                src="/IDIOMES BLANC.jpg"
-                className="h-[30px] language"
-                transition={{
-                  scale: {
-                    duration: 0.3,
-                    ease: "easeInOut",
-                  },
-                }}
-                whileHover={{ scale: 1.12 }}
-              ></motion.img>
-            </div>
+            {RIGHT_NAV_MENU_LIST.map((item, index) => {
+              return (
+                <div key={index} className="nav-item cursor-pointer ">
+                  <motion.img
+                    src={item.icon}
+                    className="h-[32px] buy"
+                    transition={{
+                      scale: {
+                        duration: 0.05,
+                      },
+                    }}
+                    whileHover={{ scale: 1.12 }}
+                  ></motion.img>
+                </div>
+              );
+            })}
           </motion.nav>
         </div>
       </div>

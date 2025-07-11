@@ -21,7 +21,7 @@ export default function CartaPage() {
       );
     });
     const animate = () => {
-      if (newScrollY - oldScrolly > 1 || newScrollY - oldScrolly < -1) {
+      if (newScrollY - oldScrolly > 2 || newScrollY - oldScrolly < -2) {
         oldScrolly = newScrollY;
         const scrollPercent =
           (document.body.scrollTop /
@@ -46,108 +46,86 @@ export default function CartaPage() {
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5 }}
           className="carta"
-          style={{
-            overflow: "auto",
-          }}
+          style={{ overflow: "auto" }}
         >
-          <motion.div
+          <motion.video
+            src="/bg.mp4"
+            muted
+            ref={video}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5 }}
-            className="video-container fixed top-0 left-0 h-screen w-screen z-[-9]"
-          >
-            <motion.video
-              loop
-              preload="auto"
-              muted
-              src="/bg.mp4"
-              className="video-bg h-screen w-screen object-cover"
-              onLoadedData={() => {
-                setVideoLoaded(true);
-              }}
-              ref={video}
-            ></motion.video>
-          </motion.div>
+            className="video fixed top-0 left-0 h-screen w-screen z-[-9] object-cover"
+          ></motion.video>
           <motion.div className="carta-content w-full h-full flex flex-col">
-            {CARTA_SECTION_CONTENT.map((section) => {
-              return (
-                <motion.section
-                  key={section.name}
-                  className="section-1 w-screen h-screen relative cursor-default"
+            {CARTA_SECTION_CONTENT.map((section) => (
+              <motion.section
+                key={section.name}
+                className={`section-1 w-screen h-screen relative cursor-default bg-cover bg-no-repeat`}
+              >
+                {/* 保持原有的内容部分不变 */}
+                <motion.div
+                  className={`section-left absolute ${section.left.position} ${section.left.width}`}
+                >
+                  <motion.h1
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1 }}
+                    viewport={{ once: false, margin: "-15%" }}
+                    className={`year relative w-full ${section.left.textAlign}`}
+                  >
+                    <span
+                      style={{ lineHeight: 0.8 }}
+                      className={`font-bold text-[5rem] text-white opacity-[0.5] ${section.left.textAlign}`}
+                    >
+                      {section.left.year}
+                    </span>
+                    <span
+                      style={{ paddingRight: "10px" }}
+                      className={`absolute ${
+                        section.left.textAlign === "text-left"
+                          ? "left-0"
+                          : "right-0"
+                      } bottom-0 title text-white text-4xl font-bold`}
+                    >
+                      {section.left.title}
+                    </span>
+                  </motion.h1>
+                  <motion.p
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 1 }}
+                    viewport={{ once: false, margin: "-15%" }}
+                    className="description text-white text-2xl mt-10"
+                  >
+                    {section.left.description}
+                  </motion.p>
+                </motion.div>
+
+                <motion.div
+                  className={`section-right absolute ${section.right.position} ${section.right.width}`}
                 >
                   <motion.div
-                    className={`section-left absolute ${section.left.position} ${section.left.width}`}
+                    style={{ lineHeight: 0.8 }}
+                    className={`title-list flex flex-col text-[80px] ${section.right.textAlign}`}
                   >
-                    <motion.h1
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 1 }}
-                      viewport={{ once: false, margin: "-15%" }}
-                      className={`year relative w-full ${section.left.textAlign}`}
-                    >
-                      <span
-                        style={{
-                          lineHeight: 0.8,
-                        }}
-                        className={`font-bold text-[5rem] text-white opacity-[0.5] ${section.left.textAlign}`}
+                    {section.right.contents.map((item, index) => (
+                      <motion.span
+                        initial={{ opacity: 0, y: 50 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: false, margin: "-60px" }}
+                        transition={{ duration: 1, delay: index * 0.1 }}
+                        key={index}
+                        className="text-white font-bold"
                       >
-                        {section.left.year}
-                      </span>
-                      <span
-                        style={{
-                          paddingRight: "10px",
-                        }}
-                        className={`absolute ${
-                          section.left.textAlign === "text-left"
-                            ? "left-0"
-                            : "right-0"
-                        } bottom-0 title text-white text-4xl font-bold`}
-                      >
-                        {section.left.title}
-                      </span>
-                    </motion.h1>
-                    <motion.p
-                      initial={{ opacity: 0, y: 50 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 1 }}
-                      viewport={{ once: false, margin: "-15%" }}
-                      className="description text-white text-xl mt-10"
-                    >
-                      {section.left.description}
-                    </motion.p>
+                        {item}
+                      </motion.span>
+                    ))}
                   </motion.div>
-                  <motion.div
-                    className={`section-right absolute ${section.right.position} ${section.right.width}`}
-                  >
-                    <motion.div
-                      style={{
-                        lineHeight: 0.8,
-                      }}
-                      className={`title-list flex flex-col text-[80px] ${section.right.textAlign}`}
-                    >
-                      {section.right.contents.map((item, index) => {
-                        return (
-                          <motion.span
-                            initial={{ opacity: 0, y: 50 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{
-                              once: false,
-                              margin: "-60px",
-                            }}
-                            transition={{ duration: 1, delay: index * 0.1 }}
-                            key={index}
-                            className="text-white font-bold"
-                          >
-                            {item}
-                          </motion.span>
-                        );
-                      })}
-                    </motion.div>
-                  </motion.div>
-                </motion.section>
-              );
-            })}
+                </motion.div>
+              </motion.section>
+            ))}
           </motion.div>
         </motion.div>
       </AnimatePresence>

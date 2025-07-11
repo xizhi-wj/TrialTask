@@ -34,6 +34,24 @@ export const LEFT_NAV_MENU_LIST = [
   },
 ];
 
+export const RIGHT_NAV_MENU_LIST = [
+  {
+    text: "BUY",
+    icon: "/COMPRA BLANC.jpg",
+    value: "BUY",
+  },
+  {
+    text: "SIGN",
+    icon: "/USER BLANC.jpg",
+    value: "SIGN",
+  },
+  {
+    text: "LANGUAGE",
+    icon: "/IDIOMES BLANC.jpg",
+    value: "LANGUAGE",
+  },
+];
+
 export const CARTA_SECTION_CONTENT = [
   {
     left: {
@@ -55,6 +73,7 @@ export const CARTA_SECTION_CONTENT = [
       contents: ["LOS", "INICIOS", "DE", "UNA", "GRAN", "HISTORIA"],
     },
     name: "section-1",
+    background: "bg-[url('/section-1.webp')]",
   },
   {
     left: {
@@ -76,6 +95,7 @@ export const CARTA_SECTION_CONTENT = [
       contents: ["LA", "MEJOR", "PECETA", "LA", "TENEMOS", "NOSOTROS"],
     },
     name: "section-2",
+    background: "bg-[url('/section-2.webp')]",
   },
   {
     left: {
@@ -97,5 +117,6 @@ export const CARTA_SECTION_CONTENT = [
       contents: ["CUIDA", "TU", "PIEL", "CON", "VELSAL·LIER"],
     },
     name: "section-3",
+    background: "bg-[url('/section-3.webp')]",
   },
 ];
