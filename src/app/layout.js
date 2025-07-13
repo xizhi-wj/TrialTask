@@ -13,13 +13,13 @@ export default function RootLayout({ children }) {
   };
   return (
     <html lang="en">
-      <body>
-        <motion.div className="home">
+      <body id="body">
+        <motion.div className="home h-full">
           <Welcome onComplete={handleWelcomeComplete}></Welcome>
           {showIndex && (
-            <motion.div className="layout">
+            <motion.div className="layout h-full">
               <Header></Header>
-              <motion.main className="main-content w-screen h-screen">
+              <motion.main className="main-content h-full">
                 {children}
               </motion.main>
             </motion.div>
