@@ -4,43 +4,84 @@ import { AnimatePresence } from "framer-motion";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { CARTA_SECTION_CONTENT } from "../constant";
-import "lenis/dist/lenis.css";
-import Lenis from "lenis";
-import ScrollyVideo from "scrolly-video/dist/ScrollyVideo.cjs.jsx";
 
 export default function CartaPage() {
   const cartaRef = useRef(null);
   const canvasRef = useRef(null);
-  const [videoPercentage, setVideoPercentage] = useState(0);
   const videoRef = useRef(null);
+  const [videoPercentage, setVideoPercentage] = useState(0);
   const sections = [];
+  // useEffect(() => {
+  //   const carta = cartaRef.current;
+  //   const canvas = canvasRef.current;
+  //   const video = videoRef.current;
+  //   document.body.addEventListener(
+  //     "scroll",
+  //     () => {
+  //       let scrollPercent =
+  //         document.body.scrollTop /
+  //         (document.body.scrollHeight - document.body.clientHeight);
+  //       if (scrollPercent >= 1) {
+  //         scrollPercent = 1;
+  //       }
+  //       if (scrollPercent <= 0) {
+  //         scrollPercent = 0;
+  //       }
+  //       setVideoPercentage(scrollPercent);
+  //     },
+  //     {
+  //       passive: true,
+  //     }
+  //   );
+  // }, []);
   useEffect(() => {
-    // const carta = cartaRef.current;
-    // const canvas = canvasRef.current;
-    // const video = videoRef.current;
-    // const lenis = new Lenis();
-    // lenis.on("scroll", () => {
-    //   console.log("object");
-    // });
-    document.body.addEventListener(
+    const canvas = canvasRef.current;
+    const carta = cartaRef.current;
+    const video = videoRef.current;
+    const context = canvas.getContext("2d");
+    const frameCount = 244;
+    const currentFrame = (index) => {
+      console.log(index, index.toString(), index.toString().padStart(4, "0"));
+      return `/frame/frame_${index.toString().padStart(4, "0")}.png`;
+    };
+    const preloadImages = () => {
+      for (let i = 1; i < frameCount; i++) {
+        const img = new Image();
+        img.src = currentFrame(i);
+      }
+    };
+    const img = new Image();
+    img.src = currentFrame(1);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    img.onload = function () {
+      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    const updateImage = (index) => {
+      img.src = currentFrame(index);
+      context.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    carta.addEventListener(
       "scroll",
       () => {
-        let scrollPercent =
-          document.body.scrollTop /
-          (document.body.scrollHeight - document.body.clientHeight);
-        if (scrollPercent >= 1) {
-          scrollPercent = 1;
-        }
-        if (scrollPercent <= 0) {
-          scrollPercent = 0;
-        }
-        setVideoPercentage(scrollPercent);
-        // video.currentTime = video.duration * scrollPercent;
+        const scrollTop = carta.scrollTop;
+        const maxScrollTop = carta.scrollHeight - window.innerHeight; // 总共可以滚动的距离
+        const scrollFraction = scrollTop / maxScrollTop; // 当前滚动距离 / 总滚动距离
+        // 当前图片帧 index = 滚动比例 * 总图片帧数
+        const frameIndex = Math.min(
+          frameCount - 1,
+          Math.ceil(scrollFraction * frameCount)
+        );
+
+        requestAnimationFrame(() => updateImage(frameIndex + 1));
       },
       {
         passive: true,
+        smooth: true,
       }
     );
+
+    preloadImages();
   }, []);
 
   return (
@@ -51,7 +92,10 @@ export default function CartaPage() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.5 }}
-          className="carta h-full min-h-screen section-container"
+          style={{
+            overflow: "scroll",
+          }}
+          className="carta h-screen min-h-screen section-container "
           ref={cartaRef}
         >
           <motion.div
@@ -62,14 +106,26 @@ export default function CartaPage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5 }}
           >
-            <ScrollyVideo
+            {/* <video
+              src="/video/bg.mp4"
+              muted
+              preload="auto"
+              ref={videoRef}
+              className="w-full h-full object-cover"
+            ></video> */}
+            {/* <ScrollyVideo
               videoPercentage={videoPercentage}
               transitionSpeed={100}
               frameThreshold={0.01}
               full="true"
               src="/video/bg.mp4"
-            />
-            <canvas ref={canvasRef} id="canvas"></canvas>
+              className=""
+            /> */}
+            <canvas
+              ref={canvasRef}
+              id="canvas"
+              className="w-screen h-screen"
+            ></canvas>
           </motion.div>
           {CARTA_SECTION_CONTENT.map((section, index) => {
             return (
