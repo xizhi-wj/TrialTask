@@ -1,15 +1,9 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-
-export const debounce = (func, wait = 500) => {
-  let timer = null;
-  return (...args) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      func(...args);
-    }, wait);
-  };
-};
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/src/ScrollTrigger";
+gsap.registerPlugin(ScrollTrigger);
 
 export class ScrollModel {
   constructor(param) {
@@ -17,20 +11,23 @@ export class ScrollModel {
     this.initCamera();
     this.initRenderer(param.canvas);
     this.setModel(param.path);
+    // this.initRingModel();
     this.resize();
-    document.addEventListener("resize", this.resize.bind(this));
+    this.initLight();
     this.render();
   }
 
   initScene() {
     this.scene = new THREE.Scene();
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.load("/25s.jpg", (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      this.scene.background = texture;
-      this.scene.environment = texture;
-    });
-    this.scene.background = new THREE.Color(0xffffff);
+    // textureLoader.load("/bg.jpg", (texture) => {
+    //   texture.mapping = THREE.EquirectangularReflectionMapping;
+    //   this.scene.background = texture;
+    //   this.scene.environment = texture;
+    // });
+    // this.scene.background = new THREE.Color(0xffffff);
+    this.scene.background = new THREE.Color("#aaa");
+    this.scene.environment = new THREE.Color("#aaa");
   }
 
   initCamera() {
@@ -40,15 +37,23 @@ export class ScrollModel {
       0.1,
       1000
     );
-    this.camera.position.z = 100;
+    this.camera.position.z = 10;
   }
 
   initRenderer(canvas) {
     this.renderer = new THREE.WebGLRenderer({
-      antialias: true,
       alpha: true,
       preserveDrawingBuffer: true,
+      // 抗锯齿
+      antialias: true,
+      //是否使用对数深度缓存，用于处理场景中巨大的比例差异
+      logarithmicDepthBuffer: true,
+      //物理上的正确光照模式,默认为false，提高渲染的性能
+      physicallyCorrectLights: true,
     });
+    this.renderer.shadowMap.enabled = true;
+    // this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    // this.renderer.toneMappingExposure = 1.5;
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -65,16 +70,78 @@ export class ScrollModel {
 
   setModel(path) {
     this.loader = new GLTFLoader();
+    this.dracoLoader = new DRACOLoader();
+    this.dracoLoader.setDecoderPath("/draco/");
+    this.loader.setDRACOLoader(this.dracoLoader);
     this.loader.load(path, (gltf) => {
       this.model = gltf.scene;
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0xefefef,
+        transmission: 0.9, // 透光率 (0-1)
+        opacity: 0.8, // 透明度 (0-1)
+        metalness: 0.0, // 金属感 (0-1)
+        roughness: 0.1, // 粗糙度 (0-1)
+        ior: 1.5, // 折射率 (1-2.333)
+        thickness: 0.5, // 材质厚度
+        specularIntensity: 1, // 镜面反射强度
+        envMapIntensity: 1, // 环境贴图强度
+        clearcoat: 0.5, // 清漆层
+        clearcoatRoughness: 0.1, // 清漆层粗糙度
+      });
+
+      this.model.traverse((child) => {
+        if (child.isMesh) {
+          child.material = material;
+        }
+      });
+      this.initPosition();
       this.scene.add(gltf.scene);
     });
   }
 
+  async initRingModel() {
+    this.ringModels = [];
+    this.loader = new GLTFLoader();
+    this.dracoLoader = new DRACOLoader();
+    this.dracoLoader.setDecoderPath("/draco/");
+    this.loader.setDRACOLoader(this.dracoLoader);
+    for (let i = 1; i <= 5; i++) {
+      const gltf = await this.loader.loadAsync(`/model/ring_${i}.glb`);
+      this.ringModels.push(gltf.scene);
+      this.scene.add(gltf.scene);
+    }
+  }
+
+  initPosition() {
+    this.model.position.set(0, -40, -120);
+    this.model.scale.set(0.8, 0.8, 0.8);
+    this.model.rotation.z = Math.PI;
+  }
+
+  initLight() {
+    // 添加光源
+    const light = new THREE.AmbientLight(0xffffff, 0.5);
+    this.scene.add(light);
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(0, 1, 1);
+    this.scene.add(directionalLight);
+  }
+
+  scroll(percent) {
+    this.model.position.y = -40 + percent * 20;
+    this.model.rotation.y = percent * Math.PI * 2;
+  }
+
   resize() {
+    // 更新摄像头
     this.camera.aspect = window.innerWidth / window.innerHeight;
+    //   更新摄像机的投影矩阵
     this.camera.updateProjectionMatrix();
+    //   更新渲染器
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    //   设置渲染器的像素比例
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+    window.addEventListener("resize", this.resize.bind(this));
   }
 
   render() {
@@ -83,79 +150,12 @@ export class ScrollModel {
   }
 }
 
-export const getVideoFrame = (video, canvas, percent) => {
-  video.currentTime = percent * video.duration;
-  video.oncanplay = () => {
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  };
-};
-
-const lerp = (start, end, amt) => (1 - amt) * start + amt * end; // 对两个值进行线性插值 (0 <= amt <= 1)
-const damp = (x, y, lambda, dt) => lerp(x, y, 1 - Math.exp(-lambda * dt)); // 阻尼效果
-const clamp = (min, input, max) => Math.max(min, Math.min(input, max)); // 获取一个中间值
-
-export class Silky {
-  timeRecord = 0; // 回调时间记录
-  targetScroll = 0; // 当前滚动位置
-  animatedScroll = 0; // 动画滚动位置
-  from = 0; // 记录起始位置
-  to = 0; // 记录目标位置
-  lerp; // 插值强度 0~1
-  currentTime = 0; // 记录当前时间
-  duration = 0; // 滚动动画的持续时间
-
-  constructor({
-    content,
-    lerp,
-    duration,
-    easing = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-  } = {}) {
-    this.lerp = isNaN(lerp) ? 0.1 : lerp;
-    this.content = content || document.body;
-    this.duration = duration || 1;
-    this.easing = easing;
-    const onWeel = (e) => {
-      e.preventDefault(); // 阻止默认事件，停止滚动
-      this.onVirtualScroll(this.targetScroll + e.deltaY);
-    };
-    this.content.addEventListener("wheel", onWeel, { passive: false });
-  }
-  raf(time) {
-    if (!this.isRunning) return;
-    const deltaTime = time - (this.timeRecord || time);
-    this.timeRecord = time;
-    this.advance(deltaTime * 0.001);
-  }
-  onVirtualScroll(target) {
-    this.isRunning = true;
-    this.to = target;
-    this.currentTime = 0;
-    this.from = this.animatedScroll;
-    this.onUpdate = (value) => {
-      this.animatedScroll = value; // 记录动画距离
-      this.content.scrollTop = this.animatedScroll; // 设置滚动
-      this.targetScroll = value; // 记录滚动后的距离
-    };
-  }
-  advance(deltaTime) {
-    let completed = false;
-    let value = 0;
-    if (this.lerp) {
-      value = damp(this.targetScroll, this.to, this.lerp * 60, deltaTime);
-      if (Math.round(this.value) === Math.round(this.to)) {
-        completed = true;
-      }
-    } else {
-      this.currentTime += deltaTime;
-      const linearProgress = clamp(0, this.currentTime / this.duration, 1);
-      completed = linearProgress >= 1;
-      const easedProgress = completed ? 1 : this.easing(linearProgress);
-      value = this.from + (this.to - this.from) * easedProgress;
-    }
-    this.onUpdate?.(value);
-    if (completed) this.isRunning = false;
-  }
-}
+// export const getVideoFrame = (video, canvas, percent) => {
+//   video.currentTime = percent * video.duration;
+//   video.oncanplay = () => {
+//     const ctx = canvas.getContext("2d");
+//     canvas.width = window.innerWidth;
+//     canvas.height = window.innerHeight;
+//     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+//   };
+// };
