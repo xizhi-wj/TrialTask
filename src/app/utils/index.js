@@ -7,6 +7,10 @@ import * as dat from "dat.gui";
 gsap.registerPlugin(ScrollTrigger);
 
 const gui = new dat.GUI();
+gui.domElement.style.position = "fixed";
+gui.domElement.style.right = "0";
+gui.domElement.style.top = "0";
+gui.domElement.style.zIndex = "9999";
 export class ScrollModel {
   constructor(param) {
     this.initScene();
@@ -277,7 +281,17 @@ export class RingModel {
     const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
     directionalLight.castShadow = true;
     directionalLight.position.set(-50, 50, 50);
+    gui.add(directionalLight, "intensity", 0, 10, 0.01);
+    gui
+      .addColor(lightColorControl, "directionalLightColor")
+      .onChange((value) => {
+        directionalLight.color.set(value);
+      });
     const pointLight = new THREE.PointLight(0xffffff, 4, 1000);
+    gui.add(pointLight, "intensity", 0, 10, 0.01);
+    gui.addColor(lightColorControl, "pointLightColor").onChange((value) => {
+      pointLight.color.set(value);
+    });
     pointLight.position.set(0, 0, 0);
     this.scene.add(light);
     this.scene.add(pointLight);
