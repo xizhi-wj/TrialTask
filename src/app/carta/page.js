@@ -5,6 +5,9 @@ import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { CARTA_SECTION_CONTENT } from "../constant";
 import { ScrollModel } from "../utils";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+gsap.registerPlugin(ScrollTrigger);
 
 export default function CartaPage() {
   const cartaRef = useRef(null);
@@ -13,10 +16,6 @@ export default function CartaPage() {
   const [videoPercentage, setVideoPercentage] = useState(0);
   const sections = [];
   useEffect(() => {
-    const model = new ScrollModel({
-      canvas: canvasRef.current,
-      path: "/model/carta.glb",
-    });
     const carta = cartaRef.current;
     carta.addEventListener(
       "scroll",
@@ -24,68 +23,12 @@ export default function CartaPage() {
         const scrollTop = carta.scrollTop;
         const maxScrollTop = carta.scrollHeight - window.innerHeight; // 总共可以滚动的距离
         const scrollFraction = scrollTop / maxScrollTop; // 当前滚动距离 / 总滚动距离
-        // 当前图片帧 index = 滚动比例 * 总图片帧数
-        // const frameIndex = Math.min(
-        //   frameCount - 1,
-        //   Math.ceil(scrollFraction * frameCount)
-        // );
-        model.scroll(scrollFraction);
-        // requestAnimationFrame(() => updateImage(frameIndex + 1));
       },
       {
         passive: true,
       }
     );
   });
-  // useEffect(() => {
-  //   const canvas = canvasRef.current;
-  //   const carta = cartaRef.current;
-  //   const video = videoRef.current;
-  //   const context = canvas.getContext("2d");
-  //   const frameCount = 244;
-  //   const currentFrame = (index) => {
-  //     console.log(index, index.toString(), index.toString().padStart(4, "0"));
-  //     return `/frame/frame_${index.toString().padStart(4, "0")}.png`;
-  //   };
-  //   const preloadImages = () => {
-  //     for (let i = 1; i < frameCount; i++) {
-  //       const img = new Image();
-  //       img.src = currentFrame(i);
-  //     }
-  //   };
-  //   const img = new Image();
-  //   img.src = currentFrame(1);
-  //   canvas.width = window.innerWidth;
-  //   canvas.height = window.innerHeight;
-  //   img.onload = function () {
-  //     context.drawImage(img, 0, 0, canvas.width, canvas.height);
-  //   };
-  //   const updateImage = (index) => {
-  //     img.src = currentFrame(index);
-  //     context.drawImage(img, 0, 0, canvas.width, canvas.height);
-  //   };
-  //   carta.addEventListener(
-  //     "scroll",
-  //     () => {
-  //       const scrollTop = carta.scrollTop;
-  //       const maxScrollTop = carta.scrollHeight - window.innerHeight; // 总共可以滚动的距离
-  //       const scrollFraction = scrollTop / maxScrollTop; // 当前滚动距离 / 总滚动距离
-  //       // 当前图片帧 index = 滚动比例 * 总图片帧数
-  //       const frameIndex = Math.min(
-  //         frameCount - 1,
-  //         Math.ceil(scrollFraction * frameCount)
-  //       );
-
-  //       requestAnimationFrame(() => updateImage(frameIndex + 1));
-  //     },
-  //     {
-  //       passive: true,
-  //       smooth: true,
-  //     }
-  //   );
-
-  //   preloadImages();
-  // }, []);
 
   return (
     <>
@@ -110,21 +53,6 @@ export default function CartaPage() {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5 }}
           >
-            {/* <video
-              src="/video/bg.mp4"
-              muted
-              preload="auto"
-              ref={videoRef}
-              className="w-full h-full object-cover"
-            ></video> */}
-            {/* <ScrollyVideo
-              videoPercentage={videoPercentage}
-              transitionSpeed={100}
-              frameThreshold={0.01}
-              full="true"
-              src="/video/bg.mp4"
-              className=""
-            /> */}
             <canvas
               ref={canvasRef}
               id="canvas"

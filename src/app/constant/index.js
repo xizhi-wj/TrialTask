@@ -7,6 +7,7 @@ export const LEFT_NAV_MENU_LIST = [
   {
     text: "PRODUCTES",
     value: "PRODUCTES",
+    path: "/productes",
   },
   {
     text: "FUNDACIO",
