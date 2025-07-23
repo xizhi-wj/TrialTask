@@ -374,14 +374,14 @@ export class RingModel {
       Math.PI / 4 + (percent * Math.PI) / 2.5
     );
     this.ringModels[1].rotation.set(
-      Math.PI / 4 + percent * Math.PI,
-      percent * Math.PI,
-      Math.PI / 4 + percent * Math.PI
+      this.ringModels[0].rotation.x,
+      this.ringModels[0].rotation.y + Math.PI / 2,
+      this.ringModels[0].rotation.z
     );
     this.ringModels[2].rotation.set(
-      percent * Math.PI,
-      Math.PI / 4 + (percent * Math.PI) / 3,
-      Math.PI / 4 + (percent * Math.PI) / 3
+      this.ringModels[1].rotation.x,
+      this.ringModels[1].rotation.y,
+      this.ringModels[1].rotation.z + Math.PI / 2
     );
     this.ringModels[3].rotation.set(
       (percent * Math.PI) / 2,
@@ -403,11 +403,7 @@ export class RingModel {
       Math.max(0, Math.min(percent - 0.6, 0.2)) * 13.5, // ringModels[4]
     ];
     for (let i = 0; i < 4; i++) {
-      this.ringModels[i + 1].scale.set(
-        clamped[i],
-        clamped[i] + 1.5,
-        clamped[i]
-      );
+      this.ringModels[i + 1].scale.set(clamped[i], clamped[i] + 1, clamped[i]);
     }
     const sphereScale = percent > 0.6 ? Math.min((percent - 0.6) * 5, 1) : 0;
     this.sphere.scale.set(sphereScale, sphereScale, sphereScale);
